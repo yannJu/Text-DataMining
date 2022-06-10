@@ -14,24 +14,29 @@ public class p3_recordTransMapper extends Mapper<Object, Text, Text, Text> {
 	IntWritable itemCode = new IntWritable();
 	FloatWritable averVal = new FloatWritable();
 	String tmp, keyTmp, valTmp;
+	int cnt = 0;
 	
 	@Override
 	protected void map(Object key, Text value, Mapper<Object, Text, Text, Text>.Context context) throws IOException, InterruptedException {
 		// TODO Auto-generated method stub
 		StringTokenizer st = new StringTokenizer(value.toString(), ",");
 		
-		dateTime.set(st.nextToken());
-		stationCode.set(st.nextToken());
-		itemCode.set(Integer.parseInt(st.nextToken()));
-		averVal.set(Float.parseFloat(st.nextToken()));
-		tmp = st.nextToken();
-		
-		keyTmp = dateTime + "->" + stationCode;
-		valTmp = itemCode + "\t" + averVal;
-		
-		keyText.set(keyTmp);
-		valText.set(valTmp);
-		
-		context.write(keyText, valText);
+		if (cnt++ > 0) {
+			dateTime.set(st.nextToken());
+			stationCode.set(st.nextToken());
+			itemCode.set(Integer.parseInt(st.nextToken()));
+			averVal.set(Float.parseFloat(st.nextToken()));
+			tmp = st.nextToken();
+			
+			if (Integer.parseInt(tmp.toString()) == 0) {
+				keyTmp = dateTime + "->" + stationCode;
+				valTmp = itemCode + "\t" + averVal;
+				
+				keyText.set(keyTmp);
+				valText.set(valTmp);
+				
+				context.write(keyText, valText);
+			}
+		}
 	}
 }

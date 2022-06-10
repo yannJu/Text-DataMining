@@ -13,18 +13,21 @@ import org.apache.hadoop.mapreduce.Mapper;
 public class p2_getAirGoodStateMapper extends Mapper<Object, Text, Text, IntWritable>{
 	Text measureDate = new Text(), stationCode = new Text(), instrument = new Text();
 	IntWritable val = new IntWritable(1);
+	int cnt = 0;
 	@Override
 	protected void map(Object key, Text value, Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
 		// TODO Auto-generated method stub
 		StringTokenizer st = new StringTokenizer(value.toString(), ",");
 
-		// 측정일자, 지역코드, item코드, 값, .. 이 차례대로 들어옴
-		measureDate.set(st.nextToken());
-		stationCode.set(st.nextToken());
-		int itemcode = Integer.parseInt(st.nextToken());
-		float averVal = Float.parseFloat(st.nextToken());
-		instrument.set(st.nextToken());
-		
-		if ((itemcode == 8 && averVal <= 30) || (itemcode == 9 && averVal <= 15)) context.write(stationCode, val);
+		if (cnt++ > 0) {
+			// 측정일자, 지역코드, item코드, 값, .. 이 차례대로 들어옴
+			measureDate.set(st.nextToken());
+			stationCode.set(st.nextToken());
+			int itemcode = Integer.parseInt(st.nextToken());
+			float averVal = Float.parseFloat(st.nextToken());
+			instrument.set(st.nextToken());
+			
+			if (Integer.parseInt(instrument.toString()) == 0 && ((itemcode == 8 && averVal <= 30) || (itemcode == 9 && averVal <= 15))) context.write(stationCode, val);
+		}
 	}
 }

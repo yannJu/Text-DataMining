@@ -27,6 +27,7 @@ public class SeoulAirPollution extends Configured implements Tool {
 		runP2(inputPath);
 		runP3(inputPath);
 		runP4(inputPath);
+//		getMaxStation(inputPath);
 		return 0;
 	}
 	
@@ -68,26 +69,6 @@ public class SeoulAirPollution extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 		
 		job.waitForCompletion(true);
-		
-		String stationCode = "", maxStation = "";
-		int averVal, maxVal = Integer.MIN_VALUE;
-		
-		// 좋음이 제일 많은 지역 찾기 reduce 3개 기준
-		for (int i = 0; i < 3; i++) {
-			String str, pathTmp = outputPath + "/part-r-0000" + i;
-			BufferedReader reader = new BufferedReader(new FileReader(pathTmp));
-			while ((str = reader.readLine()) != null) {
-				StringTokenizer st = new StringTokenizer(str.toString());
-				stationCode = st.nextToken();
-				averVal = Integer.parseInt(st.nextToken());
-				if (maxVal < averVal) {
-					maxVal = averVal;
-					maxStation = stationCode;
-				}
-			}
-		}
-		
-		System.out.println("(MAX) Station Code : " + maxStation + " Val : " + maxVal);
 	}
 	
 	public void runP3(String inputPath) throws Exception {
@@ -128,6 +109,28 @@ public class SeoulAirPollution extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(job, new Path(outputPath));
 		
 		job.waitForCompletion(true);
+	}
+	
+	public void getMaxStation(String outputPath) throws Exception {
+		String stationCode = "", maxStation = "";
+		int averVal, maxVal = Integer.MIN_VALUE;
+		
+		// 좋음이 제일 많은 지역 찾기 reduce 3개 기준
+		for (int i = 0; i < 3; i++) {
+			String str, pathTmp = outputPath + "_p2.out/part-r-0000" + i;
+			BufferedReader reader = new BufferedReader(new FileReader(pathTmp));
+			while ((str = reader.readLine()) != null) {
+				StringTokenizer st = new StringTokenizer(str.toString());
+				stationCode = st.nextToken();
+				averVal = Integer.parseInt(st.nextToken());
+				if (maxVal < averVal) {
+					maxVal = averVal;
+					maxStation = stationCode;
+				}
+			}
+		}
+		
+		System.out.println("(MAX) Station Code : " + maxStation + " Val : " + maxVal);
 	}
 	
 	public static void main(String[] args) throws Exception {

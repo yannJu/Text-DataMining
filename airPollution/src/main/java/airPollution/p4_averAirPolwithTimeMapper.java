@@ -14,6 +14,7 @@ public class p4_averAirPolwithTimeMapper extends Mapper<Object, Text, Text, Text
 	String valresult = "", date = "", time = "", allDATE = "", itemCode = "", aveVal = "";
 	
 	Text tmp = new Text();
+	int cnt = 0;
 	
 	@Override
 	protected void map(Object key, Text value, Mapper<Object, Text, Text, Text>.Context context)
@@ -21,25 +22,29 @@ public class p4_averAirPolwithTimeMapper extends Mapper<Object, Text, Text, Text
 		// TODO Auto-generated method stub
 		StringTokenizer st = new StringTokenizer(value.toString(), ",");
 
-		// 측정일자, 지역코드, item코드, 값, .. 이 차례대로 들어옴
-		allDATE = st.nextToken();
-		StringTokenizer dateTK = new StringTokenizer(allDATE);
-		
-		date = dateTK.nextToken();
-		time = dateTK.nextToken();
-		keyResult.set(time);
-		
-		//---
-		tmp.set(st.nextToken());//stationCode
-		
-		itemCode = st.nextToken();//itemCode
-		aveVal = st.nextToken(); //averageVal
-		
-		tmp.set(st.nextToken());//instrument
-		//---
-		valresult = itemCode + "\t" + aveVal;
-		valResult.set(valresult);
-		
-		context.write(keyResult, valResult);
+		if (cnt++ > 0) {
+			// 측정일자, 지역코드, item코드, 값, .. 이 차례대로 들어옴
+			allDATE = st.nextToken();
+			StringTokenizer dateTK = new StringTokenizer(allDATE);
+			
+			date = dateTK.nextToken();
+			time = dateTK.nextToken();
+			keyResult.set(time);
+			
+			//---
+			tmp.set(st.nextToken());//stationCode
+			
+			itemCode = st.nextToken();//itemCode
+			aveVal = st.nextToken(); //averageVal
+			tmp.set(st.nextToken());//instrument
+			
+			if (Integer.parseInt(tmp.toString()) == 0) {
+				//---
+				valresult = itemCode + "\t" + aveVal;
+				valResult.set(valresult);
+				
+				context.write(keyResult, valResult);
+			}
+		}
 	}
 }
